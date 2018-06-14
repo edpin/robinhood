@@ -36,4 +36,13 @@ Usage:
 		panic(err)
 	}
 	fmt.Printf("Token: %s\n", client.Token)
+
+	accs, err := client.GetAccounts()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Accounts:")
+	for _, acc := range accs {
+		fmt.Printf("Account: %v\n", acc.AccountNumber)
+	}
 }

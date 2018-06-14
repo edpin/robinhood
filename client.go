@@ -53,3 +53,27 @@ func (c *Client) GetToken() error {
 	c.Token = tok.Token
 	return nil
 }
+
+type Account struct {
+  AccountNumber string `json:"account_number"`
+}
+
+type accounts struct {
+  Accounts []Account `json:"results"`
+  Next string `json:"next"`
+}
+
+// GetAccounts returns the list of all account numbers associated with a user.
+// Client must be authenticated (i.e. a Token must be supplied).
+func (c *Client) GetAccounts() ([]Account, error) {
+  resp, err := get(accountsURL, c.Token)
+  if err != nil {
+    return nil, err
+  }
+  var accs accounts
+  err = json.Unmarshal(resp, &accs)
+  if err != nil {
+    return nil, err
+  }
+  return accs.Accounts, nil
+}

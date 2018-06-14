@@ -9,8 +9,9 @@ import (
 )
 
 const (
-	apiURL   = "https://api.robinhood.com/"
-	tokenURL = "api-token-auth/"
+	apiURL      = "https://api.robinhood.com/"
+	tokenURL    = "api-token-auth/"
+	accountsURL = "accounts/"
 )
 
 // get performs an HTTP get request on 'endpoint' using 'token' for authentication.
@@ -19,7 +20,7 @@ func get(endpoint, token string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	return doReq(req, "")
+	return doReq(req, token)
 }
 
 // post performs an HTTP post of 'data' to 'endpoint' using 'token' for authentication.
