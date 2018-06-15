@@ -15,7 +15,7 @@ type paginatedResults struct {
 func (c *Client) paginatedGet(endpoint string) ([]byte, error) {
 	var buf bytes.Buffer
 	for {
-		resp, err := get(endpoint, c.Token)
+		resp, err := c.get(endpoint)
 		if err != nil {
 			return nil, err
 		}

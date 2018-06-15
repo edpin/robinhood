@@ -15,17 +15,17 @@ const (
 	positionsURI = "positions/"
 )
 
-// get performs an HTTP get request on 'endpoint' using 'token' for authentication.
-func get(endpoint, token string) ([]byte, error) {
+// get performs an HTTP get request on 'endpoint'..
+func (c *Client) get(endpoint string) ([]byte, error) {
 	req, err := http.NewRequest("GET", apiURL+endpoint, nil)
 	if err != nil {
 		return nil, err
 	}
-	return doReq(req, token)
+	return c.doReq(req)
 }
 
-// post performs an HTTP post of 'data' to 'endpoint' using 'token' for authentication.
-func post(endpoint string, data, token string) ([]byte, error) {
+// post performs an HTTP post of 'data' to 'endpoint'.
+func (c *Client) post(endpoint string, data string) ([]byte, error) {
 	buf := strings.NewReader(data)
 	req, err := http.NewRequest("POST", apiURL+endpoint, buf)
 	if err != nil {
@@ -33,13 +33,13 @@ func post(endpoint string, data, token string) ([]byte, error) {
 	}
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	// Note: Content-Length is set by NewRequest.
-	return doReq(req, token)
+	return c.doReq(req)
 }
 
-func doReq(req *http.Request, token string) ([]byte, error) {
+func (c *Client) doReq(req *http.Request) ([]byte, error) {
 	req.Header.Add("Accept", "application/json")
-	if token != "" {
-		req.Header.Add("Authorization", "Token "+token)
+	if c.Token != "" {
+		req.Header.Add("Authorization", "Token "+c.Token)
 	}
 	client := &http.Client{}
 	resp, err := client.Do(req)

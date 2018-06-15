@@ -38,7 +38,7 @@ func (c *Client) GetToken() error {
 	form.Add("username", c.Username)
 	form.Add("password", c.Password)
 
-	resp, err := post(tokenURI, form.Encode(), "")
+	resp, err := c.post(tokenURI, form.Encode())
 	if err != nil {
 		return err
 	}
@@ -66,7 +66,7 @@ type accounts struct {
 // GetAccounts returns the list of all account numbers associated with a user.
 // Client must be authenticated (i.e. a Token must be supplied).
 func (c *Client) GetAccounts() ([]Account, error) {
-	resp, err := get(accountsURI, c.Token)
+	resp, err := c.get(accountsURI)
 	if err != nil {
 		return nil, err
 	}
