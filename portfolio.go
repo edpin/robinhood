@@ -13,7 +13,7 @@ import (
 type position struct {
 	BuyPrice string `json:"average_buy_price"`
 	URL      string `json:"instrument"`
-  Quantity string `json:"quantity"`
+	Quantity string `json:"quantity"`
 }
 
 func (c *Client) rawPortfolio() ([]position, error) {
@@ -41,7 +41,7 @@ type Position struct {
 	Symbol   string
 	Name     string
 	BuyPrice float64
-  Quantity float64
+	Quantity float64
 }
 
 func (c *Client) Portfolio() ([]Position, error) {
@@ -73,8 +73,8 @@ func (c *Client) Portfolio() ([]Position, error) {
 			// TODO: return partial info from here.
 			return nil, err
 		}
-    quantity, err := strconv.ParseFloat(p.Quantity, 64)
-    if err != nil {
+		quantity, err := strconv.ParseFloat(p.Quantity, 64)
+		if err != nil {
 			// TODO: return partial info from here.
 			return nil, err
 		}
@@ -82,7 +82,7 @@ func (c *Client) Portfolio() ([]Position, error) {
 			Symbol:   detail.Symbol,
 			Name:     detail.Name,
 			BuyPrice: buyPrice,
-      Quantity: quantity,
+			Quantity: quantity,
 		})
 	}
 	return positions, nil
