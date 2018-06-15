@@ -13,6 +13,7 @@ const (
 	tokenURI     = "api-token-auth/"
 	accountsURI  = "accounts/"
 	positionsURI = "positions/"
+	quotesURI    = "quotes/"
 )
 
 // get performs an HTTP get request on 'endpoint'..
