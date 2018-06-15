@@ -9,9 +9,10 @@ import (
 )
 
 const (
-	apiURL      = "https://api.robinhood.com/"
-	tokenURL    = "api-token-auth/"
-	accountsURL = "accounts/"
+	apiURL       = "https://api.robinhood.com/"
+	tokenURI     = "api-token-auth/"
+	accountsURI  = "accounts/"
+	positionsURI = "positions/"
 )
 
 // get performs an HTTP get request on 'endpoint' using 'token' for authentication.

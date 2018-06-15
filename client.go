@@ -38,7 +38,7 @@ func (c *Client) GetToken() error {
 	form.Add("username", c.Username)
 	form.Add("password", c.Password)
 
-	resp, err := post(tokenURL, form.Encode(), "")
+	resp, err := post(tokenURI, form.Encode(), "")
 	if err != nil {
 		return err
 	}
@@ -55,25 +55,26 @@ func (c *Client) GetToken() error {
 }
 
 type Account struct {
-  AccountNumber string `json:"account_number"`
+	AccountNumber string `json:"account_number"`
 }
 
 type accounts struct {
-  Accounts []Account `json:"results"`
-  Next string `json:"next"`
+	Accounts []Account `json:"results"`
+	Next     string    `json:"next"`
 }
 
 // GetAccounts returns the list of all account numbers associated with a user.
 // Client must be authenticated (i.e. a Token must be supplied).
 func (c *Client) GetAccounts() ([]Account, error) {
-  resp, err := get(accountsURL, c.Token)
-  if err != nil {
-    return nil, err
-  }
-  var accs accounts
-  err = json.Unmarshal(resp, &accs)
-  if err != nil {
-    return nil, err
-  }
-  return accs.Accounts, nil
+	resp, err := get(accountsURI, c.Token)
+	if err != nil {
+		return nil, err
+	}
+	var accs accounts
+	err = json.Unmarshal(resp, &accs)
+	if err != nil {
+		return nil, err
+	}
+	// TODO: handle pagination.
+	return accs.Accounts, nil
 }
