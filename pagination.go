@@ -3,6 +3,8 @@ package robinhood
 import (
 	"bytes"
 	"encoding/json"
+	"net/http"
+	"strings"
 )
 
 // Deals with pagination transparently.
@@ -14,8 +16,14 @@ type paginatedResults struct {
 
 func (c *Client) paginatedGet(endpoint string) ([]byte, error) {
 	var buf bytes.Buffer
+	buf.WriteString("[")
+	endpoint = apiURL + endpoint
 	for {
-		resp, err := c.get(endpoint)
+		req, err := http.NewRequest("GET", endpoint, nil)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := c.doReq(req)
 		if err != nil {
 			return nil, err
 		}
@@ -24,9 +32,14 @@ func (c *Client) paginatedGet(endpoint string) ([]byte, error) {
 		if err != nil {
 			return nil, err
 		}
-		buf.Write([]byte(res.Results))
+		// TODO: This is inefficient. Fix it!
+		resStr := strings.Trim(string(res.Results), "[]")
+		buf.Write([]byte(resStr))
 		if res.Next == "" {
+			buf.WriteString("]")
 			return buf.Bytes(), nil
+		} else {
+			buf.WriteString(",")
 		}
 		endpoint = res.Next
 	}
