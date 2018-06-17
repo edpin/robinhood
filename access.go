@@ -18,6 +18,7 @@ const (
 	chainsURI        = "options/chains/"      // ?equity_instrument_ids=
 	optionsURI       = "options/instruments/" //?chain_id={_chainid}&expiration_dates={_dates}&state=active&tradability=tradable
 	marketOptionsURI = "marketdata/options/"  //{_optionid}/
+	oAuthUpgradeURI  = "oauth2/migrate_token/"
 )
 
 // get performs an HTTP get request on 'endpoint'..

@@ -11,15 +11,16 @@ import (
 var (
 	username = flag.String("username", "", "Username with Robinhood")
 	password = flag.String("password", "", "Password with Robinhood")
+	bearer   = flag.Bool("bearer", false, "If true, also fetches the bearer token")
 )
 
 func main() {
 	flag.Parse()
 
-	if flag.NFlag() != 2 {
+	if flag.NFlag() < 2 {
 		fmt.Printf(`
 Usage:
-  get_token --username=your_user_name --password=your_password
+  get_token --username=your_user_name --password=your_password [--bearer]
 `)
 		return
 	}
@@ -36,6 +37,14 @@ Usage:
 		panic(err)
 	}
 	fmt.Printf("Token: %s\n", client.Token)
+
+	if *bearer {
+		err = client.GetBearerToken()
+		if err != nil {
+			panic(err)
+		}
+		fmt.Printf("Bearer token: %s\nBearer token expiration: %s\n", client.BearerToken, client.BearerTokenExpiration)
+	}
 
 	accs, err := client.GetAccounts()
 	if err != nil {
