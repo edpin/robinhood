@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
@@ -65,11 +66,8 @@ func (c *Client) Quote(symbol []string) ([]Quote, error) {
 	// Convert prices from string to floats.
 	var qts []Quote
 	for _, q := range quotes {
-		bid, err := strconv.ParseFloat(q.Bid, 64)
-		if err != nil {
-			return nil, err
-		}
-		ask, err := strconv.ParseFloat(q.Ask, 64)
+		bid, err := parseFloat64(q.Bid, nil)
+		ask, err := parseFloat64(q.Ask, err)
 		if err != nil {
 			return nil, err
 		}
@@ -158,7 +156,11 @@ type chain struct {
 type Chain struct {
 	Strike     float64
 	Expiration time.Time
+	Symbol     string
 	Type       string // "put" or "call". TODO: use an enum?
+
+	// Private fields
+	id string
 }
 
 func (c *Client) chains(symbol string, expiration time.Time) ([]chain, error) {
@@ -205,47 +207,81 @@ func (c *Client) Chains(symbol string, expiration time.Time) ([]Chain, error) {
 			continue
 		}
 		Chains = append(Chains, Chain{
+			Symbol:     symbol,
 			Type:       c.Type,
 			Strike:     strike,
 			Expiration: exp,
+			id:         c.ID,
 		})
 	}
 	return Chains, nil
 }
 
-type Option struct {
-	Bid float64
-	Ask float64
+type option struct {
+	Ask         string `json:"ask_price"`
+	Bid         string `json:"bid_price"`
+	Last        string `json:"last_trade_price"`
+	MarketPrice string `json:"adjusted_mark_price"`
+	IV          string `json:"implied_volatility"`
+	// Other fields available...
 }
 
-func (c *Client) Option(symbol string, expiration time.Time, strike float64, optionType string) (Option, error) {
+type Option struct {
+	Symbol      string // the underlying symbol.
+	Strike      float64
+	Expiration  time.Time
+	Type        string // "put" or "call". TODO: use an enum?
+	Bid         float64
+	Ask         float64
+	Last        float64
+	MarketPrice float64 // Close to midpoint, but not quite.
+	IV          float64
+}
+
+// Option returns a quote for an option chain.
+func (c *Client) Option(chain Chain) (Option, error) {
 	var o0 Option
-	chains, err := c.chains(symbol, expiration)
+
+	req, err := http.NewRequest("GET", apiURL+marketOptionsURI+chain.id+"/", nil)
 	if err != nil {
 		return o0, err
 	}
-	// Look for the right strike price.
-	for _, chain := range chains {
-		strikeChain, err := strconv.ParseFloat(chain.StrikePrice, 64)
-		if err != nil {
-			log.Printf("error converting to float %q: %v", chain.StrikePrice, err)
-			continue
-		}
-		if floatEquals(strike, strikeChain) {
-			return c.option(chain.ID)
-		}
-	}
-	return o0, fmt.Errorf("error finding option quote for symbol %q, expiration %s, strike %2.2f", symbol, expiration.Format(dateFormat), strike)
-}
-
-func (c *Client) option(optionID string) (Option, error) {
-	var o0 Option
-
-	log.Printf("Going to fetch: %s", marketOptionsURI+optionID+"/")
-	resp, err := c.get(marketOptionsURI + optionID + "/")
+	resp, err := c.doReqWithBearerToken(req)
 	if err != nil {
 		return o0, err
 	}
 	log.Printf("Got raw option: %s", resp)
-	return o0, nil
+	var o option
+	err = json.Unmarshal(resp, &o)
+	if err != nil {
+		return o0, err
+	}
+	bid, err := parseFloat64(o.Bid, nil)
+	ask, err := parseFloat64(o.Ask, err)
+	last, err := parseFloat64(o.Last, err)
+	marketPrice, err := parseFloat64(o.MarketPrice, err)
+	//iv, err := parseFloat64(o.IV, err)
+	option := Option{
+		Symbol:      chain.Symbol,
+		Strike:      chain.Strike,
+		Expiration:  chain.Expiration,
+		Type:        chain.Type,
+		Bid:         bid,
+		Ask:         ask,
+		Last:        last,
+		MarketPrice: marketPrice,
+		//IV:          iv,
+	}
+	return option, err
+}
+
+// parseFloat64 parses the float and returns the prevErr if non null or the
+// current error. Use it to chain several calls without having to check for
+// errors until the end of the chain.
+func parseFloat64(str string, prevErr error) (float64, error) {
+	f, err := strconv.ParseFloat(str, 64)
+	if prevErr != nil {
+		return f, prevErr
+	}
+	return f, err
 }

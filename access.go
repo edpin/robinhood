@@ -4,7 +4,6 @@ package robinhood
 import (
 	"fmt"
 	"io/ioutil"
-	"math"
 	"net/http"
 	"strings"
 )
@@ -27,7 +26,7 @@ func (c *Client) get(endpoint string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	return c.doReq(req)
+	return c.doReqWithAuth(req)
 }
 
 // post performs an HTTP post of 'data' to 'endpoint'.
@@ -39,14 +38,19 @@ func (c *Client) post(endpoint string, data string) ([]byte, error) {
 	}
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	// Note: Content-Length is set by NewRequest.
+	return c.doReqWithAuth(req)
+}
+
+func (c *Client) doReqWithAuth(req *http.Request) ([]byte, error) {
+	_, hasAuthorizationHeader := req.Header["Authorization"]
+	if c.Token != "" && !hasAuthorizationHeader {
+		req.Header.Add("Authorization", "Token "+c.Token)
+	}
 	return c.doReq(req)
 }
 
 func (c *Client) doReq(req *http.Request) ([]byte, error) {
 	req.Header.Add("Accept", "application/json")
-	if c.Token != "" {
-		req.Header.Add("Authorization", "Token "+c.Token)
-	}
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
@@ -63,8 +67,11 @@ func (c *Client) doReq(req *http.Request) ([]byte, error) {
 	return data, nil
 }
 
-const fEpsilon = 0.00001
-
-func floatEquals(a, b float64) bool {
-	return math.Abs(a-b) < fEpsilon
+func (c *Client) doReqWithBearerToken(req *http.Request) ([]byte, error) {
+	err := c.EnsureBearerToken()
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Add("Authorization", "Bearer "+c.BearerToken)
+	return c.doReq(req)
 }

@@ -4,6 +4,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"math"
 	"time"
 
 	rh "github.com/edpin/robinhood"
@@ -37,9 +38,31 @@ Usage:
 	if err != nil {
 		panic(err)
 	}
-	opt, err := client.Option(*symbol, exp, *strike, *optType)
+	chains, err := client.Chains(*symbol, exp)
+	if err != nil {
+		panic(err)
+	}
+	// Look for the right strike price.
+	idx := -1
+	for i, chain := range chains {
+		if floatEquals(*strike, chain.Strike) {
+			idx = i
+			break
+		}
+	}
+	if idx < 0 {
+		panic("no chain found")
+	}
+
+	opt, err := client.Option(chains[idx])
 	if err != nil {
 		panic(err)
 	}
 	fmt.Printf("Option: %+v\n", opt)
+}
+
+const fEpsilon = 0.00001
+
+func floatEquals(a, b float64) bool {
+	return math.Abs(a-b) < fEpsilon
 }

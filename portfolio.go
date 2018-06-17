@@ -56,7 +56,7 @@ func (c *Client) Portfolio() ([]Position, error) {
 		if err != nil {
 			return nil, err
 		}
-		resp, err := c.doReq(req)
+		resp, err := c.doReqWithAuth(req)
 		if err != nil {
 			// TODO: return partial info from here.
 			return nil, err

@@ -23,7 +23,7 @@ func (c *Client) paginatedGet(endpoint string) ([]byte, error) {
 		if err != nil {
 			return nil, err
 		}
-		resp, err := c.doReq(req)
+		resp, err := c.doReqWithAuth(req)
 		if err != nil {
 			return nil, err
 		}
