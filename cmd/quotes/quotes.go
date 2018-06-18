@@ -33,5 +33,8 @@ Usage:
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("Got: %+v\n", quotes)
+	fmt.Printf("Quotes:\n")
+	for _, q := range quotes {
+		fmt.Printf("%+v\n", q)
+	}
 }

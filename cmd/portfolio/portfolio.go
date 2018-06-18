@@ -28,10 +28,12 @@ Usage:
 		AccountID: *account,
 		Token:     *token,
 	}
-
 	port, err := client.Portfolio()
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("Got: %v\n", port)
+	fmt.Printf("Porfolio:\n")
+	for _, p := range port {
+		fmt.Printf("%+v\n", p)
+	}
 }

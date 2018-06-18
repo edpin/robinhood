@@ -38,9 +38,8 @@ func (c *Client) paginatedGet(endpoint string) ([]byte, error) {
 		if res.Next == "" {
 			buf.WriteString("]")
 			return buf.Bytes(), nil
-		} else {
-			buf.WriteString(",")
 		}
+		buf.WriteString(",")
 		endpoint = res.Next
 	}
 	// NOT REACHED
