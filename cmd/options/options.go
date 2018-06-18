@@ -56,7 +56,7 @@ Usage:
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("Option: %+v\n", opt)
+	fmt.Printf("%+v\n", opt)
 }
 
 const fEpsilon = 0.00001

@@ -19,8 +19,11 @@ type Option struct {
 	Ask         float64
 	Last        float64
 	MarketPrice float64 // Close to midpoint, but not quite.
+	Volume      int64
 	IV          float64
 	// TODO: add other fields such as AskSize, BidSize, greeks, etc.
+
+	instrument Instrument // URL of instrument. Used for placing orders.
 }
 
 // Option returns a quote for an option chain.
@@ -54,8 +57,10 @@ func (c *Client) Option(chain Chain) (Option, error) {
 		Bid:         bid,
 		Ask:         ask,
 		Last:        last,
+		Volume:      o.Volume,
 		MarketPrice: marketPrice,
 		IV:          iv,
+		instrument:  Instrument(o.Instrument),
 	}
 	return option, err
 }
@@ -65,6 +70,8 @@ type option struct {
 	Bid         string `json:"bid_price"`
 	Last        string `json:"last_trade_price"`
 	MarketPrice string `json:"adjusted_mark_price"`
+	Volume      int64  `json:"volume"`
 	IV          string `json:"implied_volatility"`
+	Instrument  string `json:"instrument"`
 	// Other fields available...
 }
