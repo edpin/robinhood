@@ -70,6 +70,7 @@ func (c *Client) GetToken() error {
 // Account contains the user's AccountNumber.
 type Account struct {
 	AccountNumber string `json:"account_number"`
+	URL           string `json:"url"`
 }
 
 // GetAccounts returns the list of all account numbers associated with a user.

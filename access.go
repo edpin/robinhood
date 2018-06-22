@@ -18,6 +18,7 @@ const (
 	optionsURI       = "options/instruments/" //?chain_id={_chainid}&expiration_dates={_dates}&state=active&tradability=tradable
 	marketOptionsURI = "marketdata/options/"  //{_optionid}/
 	oAuthUpgradeURI  = "oauth2/migrate_token/"
+	ordersURI        = "orders/"
 )
 
 // get performs an HTTP get request on 'endpoint'..
@@ -29,7 +30,7 @@ func (c *Client) get(endpoint string) ([]byte, error) {
 	return c.doReqWithAuth(req)
 }
 
-// post performs an HTTP post of 'data' to 'endpoint'.
+// post performs an HTTP post of 'data' to 'endpoint'. Data is URL-encoded, not JSON.
 func (c *Client) post(endpoint string, data string) ([]byte, error) {
 	buf := strings.NewReader(data)
 	req, err := http.NewRequest("POST", apiURL+endpoint, buf)
@@ -57,12 +58,12 @@ func (c *Client) doReq(req *http.Request) ([]byte, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("Request failed: %s (%d)", resp.Status, resp.StatusCode)
-	}
 	data, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
+	}
+	if resp.StatusCode != http.StatusOK {
+		return data, fmt.Errorf("Request failed: %s (%d): %s", resp.Status, resp.StatusCode, data)
 	}
 	return data, nil
 }
