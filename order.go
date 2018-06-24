@@ -23,6 +23,7 @@ const (
 // OrderType describes whether the order is market, stop, limit, etc.
 type OrderType int
 
+// See description for OrderType.
 const (
 	Market OrderType = iota
 	Limit
@@ -30,8 +31,11 @@ const (
 	StopLimit
 )
 
+// Side represents the side of the order, either a buy or a sell and for short
+// orders, the opening or closing side.
 type Side int
 
+// See description for Side.
 const (
 	Buy Side = iota
 	Sell
@@ -52,6 +56,7 @@ type Order struct {
 	StopPrice float64 // only present for STOP or STOP_LIMIT orders.
 }
 
+// Order creates a new trade order for this client's account.
 func (c *Client) Order(o Order) error {
 	// Error checking
 	if c.AccountID == "" {
@@ -71,8 +76,8 @@ func (c *Client) Order(o Order) error {
 	if len(quotes) != 1 {
 		return fmt.Errorf("invalid quote returned for symbol %q: %v", o.Symbol, err)
 	}
-	// Fetch account URL. This could be assambled from the appropriate URI pieces,
-	// but this way is safer against changes.
+	// Fetch account URL. This could be assembled from the appropriate URI pieces,
+	// but this way is safer against trivial endpoint changes.
 	accs, err := c.GetAccounts()
 	if err != nil {
 		return err
@@ -119,6 +124,7 @@ func (c *Client) Order(o Order) error {
 	return nil
 }
 
+// String implements Stringer.
 func (d Duration) String() string {
 	switch d {
 	case Day:
@@ -129,6 +135,7 @@ func (d Duration) String() string {
 	return "(invalid duration)"
 }
 
+// String implements Stringer.
 func (s Side) String() string {
 	switch s {
 	case Sell:
@@ -148,6 +155,7 @@ func (s Side) String() string {
 	}
 }
 
+// String implements Stringer.
 func (t OrderType) String() string {
 	switch t {
 	case Market:
@@ -169,6 +177,7 @@ id	String	Internal id of this order
 reject_reason	String
 state	String	queued, unconfirmed, confirmed, partially_filled, filled, rejected, canceled, or failed
 */
+// TODO: currently not used. Remove?
 type orderStatus struct {
 	ID           string `json:"id"`
 	Cancel       string `json:"cancel"`
