@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"sync"
 )
 
 const (
@@ -50,10 +51,15 @@ func (c *Client) doReqWithAuth(req *http.Request) ([]byte, error) {
 	return c.doReq(req)
 }
 
+var once sync.Once
+
 func (c *Client) doReq(req *http.Request) ([]byte, error) {
 	req.Header.Add("Accept", "application/json")
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	// Ensure we have an HTTP client on the first request.
+	once.Do(func() {
+		c.httpClient = &http.Client{}
+	})
+	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}

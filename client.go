@@ -3,6 +3,7 @@ package robinhood
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/url"
 	"strconv"
 	"time"
@@ -34,6 +35,8 @@ type Client struct {
 
 	// BearerTokenExpiration is the wall clock time that the bearer token expires.
 	BearerTokenExpiration time.Time
+
+	httpClient *http.Client
 }
 
 type token struct {

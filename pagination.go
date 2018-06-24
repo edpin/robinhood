@@ -33,13 +33,15 @@ func (c *Client) paginatedGet(endpoint string) ([]byte, error) {
 			return nil, err
 		}
 		// TODO: This is inefficient. Fix it!
-		resStr := strings.Trim(string(res.Results), "[]")
+		resStr := strings.Trim(string(res.Results), "[] ")
 		buf.Write([]byte(resStr))
 		if res.Next == "" {
 			buf.WriteString("]")
 			return buf.Bytes(), nil
 		}
-		buf.WriteString(",")
+		if resStr != "" {
+			buf.WriteString(",")
+		}
 		endpoint = res.Next
 	}
 	// NOT REACHED
