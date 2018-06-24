@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
-	"sync"
 )
 
 const (
@@ -51,14 +50,13 @@ func (c *Client) doReqWithAuth(req *http.Request) ([]byte, error) {
 	return c.doReq(req)
 }
 
-var once sync.Once
-
 func (c *Client) doReq(req *http.Request) ([]byte, error) {
 	req.Header.Add("Accept", "application/json")
 	// Ensure we have an HTTP client on the first request.
-	once.Do(func() {
+	c.once.Do(func() {
 		c.httpClient = &http.Client{}
 	})
+	//log.Printf("\n\n== req:\n%v\n", req)
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return nil, err
@@ -71,6 +69,7 @@ func (c *Client) doReq(req *http.Request) ([]byte, error) {
 	if resp.StatusCode != http.StatusOK {
 		return data, fmt.Errorf("Request failed: %s (%d): %s", resp.Status, resp.StatusCode, data)
 	}
+	//log.Printf("\n\n==resp:\n%s\n\n", data)
 	return data, nil
 }
 

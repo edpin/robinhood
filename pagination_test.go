@@ -6,7 +6,7 @@ import (
 	httpmock "gopkg.in/jarcoal/httpmock.v1"
 )
 
-var chains = map[string]string{
+var pages = map[string]string{
 	"https://api.robinhood.com/options/":              `{"previous":null,"results":[{"result": "one"},{"result": "two"}], "next":"https://api.robinhood.com/options/?cursor=next1"}`,
 	"https://api.robinhood.com/options/?cursor=next1": `{"previous":null,"results":[ {"result": "three"} ], "next":"https://api.robinhood.com/options/?cursor=next2"}`,
 	"https://api.robinhood.com/options/?cursor=next2": `{"previous":null,"results":[], "next":"https://api.robinhood.com/options/?cursor=next3"}`,
@@ -17,7 +17,7 @@ func TestPagination(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
-	for url, reply := range chains {
+	for url, reply := range pages {
 		httpmock.RegisterResponder("GET", url, httpmock.NewStringResponder(200, reply))
 	}
 

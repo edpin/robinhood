@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"sync"
 	"time"
 )
 
@@ -36,6 +37,7 @@ type Client struct {
 	// BearerTokenExpiration is the wall clock time that the bearer token expires.
 	BearerTokenExpiration time.Time
 
+	once       sync.Once
 	httpClient *http.Client
 }
 
