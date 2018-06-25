@@ -2,7 +2,6 @@ package robinhood
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 	"time"
 )
@@ -38,7 +37,6 @@ func (c *Client) Option(chain Chain) (Option, error) {
 	if err != nil {
 		return o0, err
 	}
-	log.Printf("Got raw option: %s", resp)
 	var o option
 	err = json.Unmarshal(resp, &o)
 	if err != nil {
@@ -46,7 +44,7 @@ func (c *Client) Option(chain Chain) (Option, error) {
 	}
 	bid, err := parseFloat64(o.Bid, nil)
 	ask, err := parseFloat64(o.Ask, err)
-	last, err := parseFloat64(o.Last, err)
+	last, err := parseOptionalFloat64(o.Last, err)
 	marketPrice, err := parseFloat64(o.MarketPrice, err)
 	iv, err := parseOptionalFloat64(o.IV, err)
 	option := Option{
